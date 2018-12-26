@@ -48,23 +48,31 @@ func main() {
 
 func serverStatus(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("GET /")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
+	w.Header().Add("Content-Type", "application/json")
 
 	message := "{\"status\": \"active\"}"
-	w.Header().Add("Content-Type", "application/json")
+
 	w.Write([]byte(message))
 }
 
 func bookList(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("GET /books")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
+	w.Header().Add("Content-Type", "application/json")
 
 	bl := books
 	jsonString, _ := json.Marshal(bl)
-	w.Header().Add("Content-Type", "application/json")
+
 	w.Write([]byte(jsonString))
 }
 
 func handleSearch(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("GET /elements")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
 
 	params := r.URL.Query()
 
@@ -160,8 +168,10 @@ func findElements(bookName string, element string) ([]instance, error) {
 
 			if chapterNumber != "" {
 				title = chapterNumber + " " + titleNode.Text()
-			} else {
+			} else if chapterTitle != "" && chapterTitle != "Preface" {
 				title = "Chapter: " + chapterTitle + "; Module: " + titleNode.Text()
+			} else {
+				title = titleNode.Text()
 			}
 		} else {
 			title = titleNode.Text()
