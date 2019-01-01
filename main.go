@@ -10,9 +10,9 @@ import (
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
-	//"github.com/PuerkitoBio/goquery"
 )
 
+// Create custom book struct which holds all data about book.
 type book struct {
 	BookName           string `json:"bookName"`
 	FileName           string `json:"fileName"`
@@ -21,12 +21,14 @@ type book struct {
 	ContentFetchedFrom string `json:"contentFetchedFrom"`
 }
 
+// Create struct for storing informations about found instances at every page
 type instance struct {
 	SectionName string `json:"section_name"`
 	Link        string `json:"link"`
 	Instances   int    `json:"instances"`
 }
 
+// Create struct for success response for GEt /elements?bookName=..&element=..
 type result struct {
 	Results            []instance `json:"Results"`
 	BookName           string     `json:"bookName"`
@@ -36,10 +38,22 @@ type result struct {
 	ContentFetchedFrom string     `json:"contentFetchedFrom"`
 }
 
+const (
+	jobLimit int = 2
+)
+
 func main() {
+	// Clean limits for visitors
+	go cleanupVisitors()
+
+	// Initial jobCounter
+	jobCounter := 0
+
 	http.HandleFunc("/", serverStatus)
 	http.HandleFunc("/books", bookList)
-	http.HandleFunc("/elements", handleSearch)
+	http.HandleFunc("/elements", func(w http.ResponseWriter, r *http.Request) {
+		handleSearch(w, r, &jobCounter)
+	})
 
 	if err := http.ListenAndServe(":3000", nil); err != nil {
 		log.Fatalln(err)
@@ -69,10 +83,29 @@ func bookList(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(jsonString))
 }
 
-func handleSearch(w http.ResponseWriter, r *http.Request) {
+func handleSearch(w http.ResponseWriter, r *http.Request, jc *int) {
 	fmt.Println("GET /elements")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
+
+	// r.RemoteAddr >> IP:PORT < we will limit users by ip without port
+	limiter := getVisitor(strings.SplitN(r.RemoteAddr, ":", -1)[0])
+	if limiter.Allow() == false {
+		fmt.Println(limiter)
+		w.WriteHeader(429)
+		w.Write([]byte("To many requests. Please wait."))
+		return
+	}
+
+	// Limit number of jobs which can run at once
+	if *jc >= jobLimit {
+		w.WriteHeader(502)
+		w.Write([]byte("Other job is running. Please wait few seconds and try again."))
+		return
+	}
+
+	// Add current job to counter
+	(*jc)++
 
 	params := r.URL.Query()
 
@@ -89,11 +122,16 @@ func handleSearch(w http.ResponseWriter, r *http.Request) {
 
 	res, err := findElements(bookName, element)
 	if err != nil {
+		// Remove current job from counter
+		(*jc)--
 		log.Fatalln(err)
 		w.WriteHeader(502)
 		w.Write([]byte("Something went wrong."))
 		return
 	}
+
+	// Remove current job from counter
+	(*jc)--
 
 	b := books[bookName]
 	response := result{
@@ -154,7 +192,7 @@ func findElements(bookName string, element string) ([]instance, error) {
 			var chapterNumber string
 
 			// Chapter title is used to specific region of search for unnumbered pages
-			titleNode.Parent().Parent().Find("*:not([data-type=\"metadata\"]) > h1[data-type=\"document-title\"]").Each(func(i int, sT *goquery.Selection) {
+			titleNode.Parent().Parent().Find("h1[data-type=\"document-title\"]").Each(func(i int, sT *goquery.Selection) {
 				if i == 0 {
 					chapterTitle = sT.Text()
 					sT.Find(".os-number").Each(func(i int, sTN *goquery.Selection) {
@@ -244,3 +282,6 @@ func splitAtHas(s string) (leftEl string, rightEl string, err error) {
 	}
 	return sp[0], trimUseless(sp[1]), nil
 }
+
+// TODO Ogarnąć dlaczego w calculus są złe nazwy rozdziałów
+// TODO SplitAtHas/Text przed pętlą, żeby się nie powtarzać
