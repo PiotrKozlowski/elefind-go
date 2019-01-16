@@ -232,8 +232,8 @@ var books = map[string]book{
 		ContentFetchedAt:   "21.11.2018",
 		ContentFetchedFrom: "katalyst01.cnx.org",
 	},
-	"Sociology 2e": {
-		BookName:           "Sociology 2e",
+	"Introduction to Sociology 2e": {
+		BookName:           "Introduction to Sociology 2e",
 		FileName:           "intro-sociology2e-raw.xhtml",
 		Baked:              false,
 		ContentFetchedAt:   "15.11.2018",

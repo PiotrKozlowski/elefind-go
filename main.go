@@ -91,7 +91,6 @@ func handleSearch(w http.ResponseWriter, r *http.Request, jc *int) {
 	// r.RemoteAddr >> IP:PORT < we will limit users by ip without port
 	limiter := getVisitor(strings.SplitN(r.RemoteAddr, ":", -1)[0])
 	if limiter.Allow() == false {
-		fmt.Println(limiter)
 		w.WriteHeader(429)
 		w.Write([]byte("To many requests. Please wait."))
 		return
