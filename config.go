@@ -36,8 +36,8 @@ var books = map[string]book{
 		ContentFetchedAt:   "15.11.2018",
 		ContentFetchedFrom: "katalyst01.cnx.org",
 	},
-	"AP Physics": {
-		BookName:           "AP Physics",
+	"College Physics for AP Courses": {
+		BookName:           "College Physics for AP Courses",
 		FileName:           "college-physics-ap-baked.xhtml",
 		Baked:              true,
 		ContentFetchedAt:   "15.11.2018",
