@@ -122,10 +122,10 @@ func handleSearch(w http.ResponseWriter, r *http.Request, jc *int) {
 	res, err := findElements(bookName, element)
 	if err != nil {
 		// Remove current job from counter
+		fmt.Println(err)
 		(*jc)--
-		log.Fatalln(err)
 		w.WriteHeader(502)
-		w.Write([]byte("Something went wrong."))
+		w.Write([]byte(err.Error()))
 		return
 	}
 
