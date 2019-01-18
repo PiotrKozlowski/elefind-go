@@ -20,7 +20,7 @@ var mtx sync.Mutex
 
 func addVisitor(ip string) *rate.Limiter {
 	// 1 request per second, max 5 burst size
-	limiter := rate.NewLimiter(1, 5)
+	limiter := rate.NewLimiter(1, 10)
 	mtx.Lock()
 	visitors[ip] = &visitor{limiter, time.Now()}
 	mtx.Unlock()
