@@ -99,8 +99,8 @@ var books = map[string]book{
 		ContentFetchedAt:   "21.11.2018",
 		ContentFetchedFrom: "katalyst01.cnx.org",
 	},
-	"Collaborative Statistics with edits Teegarden": {
-		BookName:           "Collaborative Statistics with edits Teegarden",
+	"Labs For Collaborative Statistics Teegarden": {
+		BookName:           "Labs For Collaborative Statistics Teegarden",
 		FileName:           "collaborative-statistics-teegarden-raw.xhtml",
 		Baked:              false,
 		ContentFetchedAt:   "21.11.2018",
