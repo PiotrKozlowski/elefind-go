@@ -261,9 +261,11 @@ func findElements(bookName string, element string) ([]instance, error) {
 	return res, nil
 }
 
+// It takes (text) from :hasText(text) and returns stripped text.
 func trimUseless(s string) string {
-	rep := strings.NewReplacer("\"", "", "'", "", "(", "", ")", "")
-	return rep.Replace(s)
+	sliced := s[1 : len(s)-1]                     // remove ()
+	rep := strings.NewReplacer("\"", "", "'", "") // remove " and '
+	return rep.Replace(sliced)
 }
 
 func splitAtHasText(s string) (el string, text string, err error) {
