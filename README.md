@@ -9,6 +9,7 @@ Please consider that Elefind is searching elements inside `[data-type="page"] an
 2. Run `./scripts/remove-namespaces ./books/book-name.xhtml` - this is removing namespaces from elements. Ex. `<m:math>` is changed to `<math>`. If you will omit this step then there will be no way to find those elements.
 3. Update `config.go`
 4. Run `go run main.go config.go limit.go` or build with `go build main.go config.go limit.go` and start with `./main`
+You can pass port as a argument: `./main 3001`
 
 Web server will start listening at port 3000
 `/` -> `{status: "active"}`

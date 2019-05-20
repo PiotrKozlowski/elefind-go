@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
@@ -43,6 +44,11 @@ const (
 )
 
 func main() {
+	port := ":3000"
+	if len(os.Args) > 1 {
+		port = ":" + os.Args[1]
+	}
+
 	// Clean limits for visitors
 	go cleanupVisitors()
 
@@ -55,7 +61,9 @@ func main() {
 		handleSearch(w, r, &jobCounter)
 	})
 
-	if err := http.ListenAndServe(":3000", nil); err != nil {
+	fmt.Printf("Starting at port %v", port)
+
+	if err := http.ListenAndServe(port, nil); err != nil {
 		log.Fatalln(err)
 	}
 }
