@@ -92,14 +92,14 @@ func handleSearch(w http.ResponseWriter, r *http.Request, jc *int) {
 	limiter := getVisitor(strings.SplitN(r.RemoteAddr, ":", -1)[0])
 	if limiter.Allow() == false {
 		w.WriteHeader(429)
-		w.Write([]byte("To many requests. Please wait."))
+		w.Write([]byte("To many requests."))
 		return
 	}
 
 	// Limit number of jobs which can run at once
 	if *jc >= jobLimit {
 		w.WriteHeader(502)
-		w.Write([]byte("Other job is running. Please wait few seconds and try again."))
+		w.Write([]byte("Other job is running."))
 		return
 	}
 
