@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -40,7 +41,8 @@ type result struct {
 }
 
 const (
-	jobLimit int = 2
+	jobLimit   int    = 2
+	timeFormat string = "2006-01-02T15:04:05+07:00"
 )
 
 func main() {
@@ -61,7 +63,8 @@ func main() {
 		handleSearch(w, r, &jobCounter)
 	})
 
-	fmt.Printf("Starting at port %v", port)
+	t := time.Now().Format(timeFormat)
+	fmt.Println(t, "Starting at port", port)
 
 	if err := http.ListenAndServe(port, nil); err != nil {
 		log.Fatalln(err)
@@ -69,7 +72,8 @@ func main() {
 }
 
 func serverStatus(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("GET /")
+	t := time.Now().Format(timeFormat)
+	fmt.Println(t, "GET /")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
 	w.Header().Add("Content-Type", "application/json")
@@ -80,7 +84,8 @@ func serverStatus(w http.ResponseWriter, r *http.Request) {
 }
 
 func bookList(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("GET /books")
+	t := time.Now().Format(timeFormat)
+	fmt.Println(t, "GET /books")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
 	w.Header().Add("Content-Type", "application/json")
@@ -92,7 +97,8 @@ func bookList(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleSearch(w http.ResponseWriter, r *http.Request, jc *int) {
-	fmt.Println("GET /elements")
+	t := time.Now().Format(timeFormat)
+	fmt.Println(t, "GET /elements")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
 
@@ -181,7 +187,7 @@ func findElements(bookName string, element string) ([]instance, error) {
 		return res, e
 	}
 
-	fmt.Printf("Starting searching for: %v in %v", element, bookName)
+	fmt.Printf("Starting searching for: %v in %v \n", element, bookName)
 
 	// Find pages for unbaked and baked books
 	pages := doc.Find("[data-type=\"composite-page\"], [data-type=\"page\"]")
