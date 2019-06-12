@@ -242,7 +242,7 @@ func findElements(bookName string, element string) ([]instance, error) {
 			el := sp[0]
 			text := trimUseless(sp[1])
 
-			s.Find(el).Each(func(i int, sEl *goquery.Selection) {
+			s.Find(":not([data-type=\"metadata\"]) > " + el).Each(func(i int, sEl *goquery.Selection) {
 				if strings.Contains(sEl.Text(), text) {
 					ins++
 				}
@@ -258,13 +258,13 @@ func findElements(bookName string, element string) ([]instance, error) {
 			leftEl := sp[0]
 			rightEl := trimUseless(sp[1])
 
-			s.Find(leftEl).Each(func(i int, sEl *goquery.Selection) {
+			s.Find(":not([data-type=\"metadata\"]) > " + leftEl).Each(func(i int, sEl *goquery.Selection) {
 				if len(sEl.Find(rightEl).Nodes) > 0 {
 					ins++
 				}
 			})
 		} else {
-			ins = len(s.Find(element).Nodes)
+			ins = len(s.Find(":not([data-type=\"metadata\"]) > " + element).Nodes)
 		}
 
 		if ins > 0 {
