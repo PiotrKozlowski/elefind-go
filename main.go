@@ -19,6 +19,8 @@ type book struct {
 	BookName           string `json:"bookName"`
 	FileName           string `json:"fileName"`
 	Baked              bool   `json:"baked"`
+	ContendBakedAt     string `json:"contentBakedAt"`
+	ContentUUID        string `json:"contentUUID"`
 	ContentFetchedAt   string `json:"contentFetchedAt"`
 	ContentFetchedFrom string `json:"contentFetchedFrom"`
 }
@@ -32,7 +34,7 @@ type instance struct {
 
 // Create struct for success response for GEt /elements?bookName=..&element=..
 type result struct {
-	Results            []instance `json:"Results"`
+	Results            []instance `json:"results"`
 	BookName           string     `json:"bookName"`
 	FileName           string     `json:"fileName"`
 	Baked              bool       `json:"baked"`
@@ -134,17 +136,16 @@ func handleSearch(w http.ResponseWriter, r *http.Request, jc *int) {
 	element := params["element"][0]
 
 	res, err := findElements(bookName, element)
+
+	// Remove current job from counter
+	(*jc)--
+
 	if err != nil {
-		// Remove current job from counter
 		fmt.Println(err)
-		(*jc)--
 		w.WriteHeader(502)
 		w.Write([]byte(err.Error()))
 		return
 	}
-
-	// Remove current job from counter
-	(*jc)--
 
 	b := books[bookName]
 	response := result{
@@ -193,12 +194,19 @@ func findElements(bookName string, element string) ([]instance, error) {
 	pages := doc.Find("[data-type=\"composite-page\"], [data-type=\"page\"]")
 	pages.Each(func(i int, s *goquery.Selection) {
 		var titleNode *goquery.Selection
-		s.Find("*:not([data-type=\"metadata\"]) > [data-type=\"document-title\"]").Each(func(i int, sTN *goquery.Selection) {
+		s.Find("*:not([data-type=\"metadata\"]) > [data-type=\"document-title\"], *:not([data-type=\"metadata\"]) > [data-type=\"title\"]").Each(func(i int, sTN *goquery.Selection) {
 			if i == 0 {
 				titleNode = sTN
 			}
 		})
+
+		if titleNode == nil {
+			fmt.Printf("Couldn't find title for page with index %v\n", i)
+			return
+		}
+
 		titleNumber := titleNode.Find(".os-number").Text()
+
 		var title string
 		if titleNumber == "" {
 			var chapterTitle string
